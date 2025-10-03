@@ -12,6 +12,7 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang/mock/gomock"
@@ -91,7 +92,7 @@ func TestCreateUserAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 
 			url := "/users"
@@ -130,5 +131,9 @@ func requireBodyMatchUser(t *testing.T, body *bytes.Buffer, user db.User) {
 	err = json.Unmarshal(data, &gotUser)
 	require.NoError(t, err)
 
-	require.Equal(t, user, gotUser)
+	require.Equal(t, user.Username, gotUser.Username)
+	require.Equal(t, user.Fullname, gotUser.Fullname)
+	require.Equal(t, user.Email, gotUser.Email)
+	require.WithinDuration(t, user.CreatedAt, gotUser.CreatedAt, time.Second)
+	require.WithinDuration(t, user.PasswordChangedAt, gotUser.PasswordChangedAt, time.Second)
 }
