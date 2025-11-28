@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: goingmysimplebank
+    networks:
+      - app-network
+  api:
+    build: .
+    environment:
+      DB_SOURCE: postgres://postgres:root@postgres:5432/goingmysimplebank?sslmode=disable
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

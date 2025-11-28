@@ -7,6 +7,9 @@ createdb:
 dropdb:
 	docker exec -it postgres-local dropdb --if-exists goingmysimplebank
 
+create-migration:
+	migrate create -ext sql -dir db/migrations -seq $(name)
+
 migrateup:
 	migrate -path db/migrations -database "postgresql://postgres:root@localhost:5432/goingmysimplebank?sslmode=disable" -verbose up
 
@@ -21,6 +24,9 @@ migratedown1:
 
 sqlc:
 	sqlc generate
+
+sqlc-docker:
+	docker run --rm -v "$(pwd):/src" -w /src sqlc/sqlc generate 
 
 test:
 	go test -v -cover ./...
